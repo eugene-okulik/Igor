@@ -5,9 +5,11 @@ my_dict = {
     "set": {99, 38, None, 'test_3', True, 2.42}}
 my_dict["llist"].append(55)
 my_dict["llist"].pop(1)
-my_dict["dict"]["i am a tuple"] = "шесть"
+my_dict["dict"]["i am a tuple"] = ("шесть",)
 my_dict["dict"].pop("one")
 my_dict["set"].add("тест")
 my_dict["set"].pop()
 print(my_dict["tuple"][-1])
 print(*my_dict.items(), sep='\n')
+
+
