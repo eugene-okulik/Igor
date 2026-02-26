@@ -11,5 +11,3 @@ my_dict["set"].add("тест")
 my_dict["set"].pop()
 print(my_dict["tuple"][-1])
 print(*my_dict.items(), sep='\n')
-
-
