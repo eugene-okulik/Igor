@@ -10,8 +10,3 @@ for num in number:
         print("Buzz")
     else:
         print(num)
-
-
-
-
-
