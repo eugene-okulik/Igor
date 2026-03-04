@@ -4,6 +4,8 @@ lines = [
     "результат работы программы: 209",
     "результат: 2"
 ]
+
+
 def process_line(line):
     colon_pos = line.index(':')
     number = int(line[colon_pos + 1:].strip())
