@@ -16,6 +16,5 @@ results = []
 for line in lines:
     results.append(process_line(line))
 
-    
 for result in results:
     print(result)
