@@ -91,4 +91,3 @@ if __name__ == "__main__":
         process_dates_from_file(str(file_path))
     except FileNotFoundError as e:
         print(e)
-        
