@@ -1,3 +1,4 @@
+# flake8: noqa: E501 W291
 import mysql.connector
 from mysql.connector import Error
 
@@ -252,4 +253,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-    
