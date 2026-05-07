@@ -89,20 +89,20 @@ def get_student_books(cursor, student_id):
 # 10. Полная информация о студенте (JOIN-запрос)
 def get_full_student_info(cursor, student_id):
     query = """
-        SELECT 
-            s.name AS 'Имя', 
-            s.second_name AS 'Фамилия', 
-            g.title AS 'Группа', 
-            b.title AS 'Книги', 
-            m.value AS 'Оценки', 
-            l.title AS 'Лекции', 
-            s2.title AS 'Предметы'  
+        SELECT
+            s.name AS 'Имя',
+            s.second_name AS 'Фамилия',
+            g.title AS 'Группа',
+            b.title AS 'Книги',
+            m.value AS 'Оценки',
+            l.title AS 'Лекции',
+            s2.title AS 'Предметы'
         FROM students s
         LEFT JOIN `groups` g ON s.group_id = g.id
         LEFT JOIN books b ON b.taken_by_student_id = s.id
         LEFT JOIN marks m ON m.student_id = s.id
         LEFT JOIN lessons l ON l.id = m.lesson_id
-        LEFT JOIN subjects s2 ON s2.id = l.subject_id  
+        LEFT JOIN subjects s2 ON s2.id = l.subject_id
         WHERE s.id = %s
     """
     cursor.execute(query, (student_id,))
@@ -136,7 +136,10 @@ def main():
         for book_title in books:
             book_id = create_book(cursor, book_title, student_id)
             book_ids.append(book_id)
-            print(f"   ✅ Книга '{book_title}' создана с ID: {book_id}, выдана студенту {student_id}")
+            print(
+                f"   ✅ Книга '{book_title}' создана с ID: {book_id}, "
+                f"выдана студенту {student_id}"
+            )
 
         conn.commit()
 
@@ -182,7 +185,10 @@ def main():
             subject_id = subject_ids[subject_title]
             lesson_id = create_lesson(cursor, lesson_title, subject_id)
             lesson_ids.append(lesson_id)
-            print(f"   ✅ Занятие '{lesson_title}' создано с ID: {lesson_id} (предмет: {subject_title})")
+            print(
+                f"   ✅ Занятие '{lesson_title}' создано с ID: {lesson_id} "
+                f"(предмет: {subject_title})"
+            )
 
         conn.commit()
 
@@ -192,7 +198,10 @@ def main():
 
         for i, lesson_id in enumerate(lesson_ids):
             mark_id = create_mark(cursor, marks_values[i], lesson_id, student_id)
-            print(f"   ✅ Оценка {marks_values[i]} за занятие ID {lesson_id} создана с ID: {mark_id}")
+            print(
+                f"   ✅ Оценка {marks_values[i]} за занятие ID {lesson_id} "
+                f"создана с ID: {mark_id}"
+            )
 
         conn.commit()
 
@@ -243,3 +252,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+    
