@@ -1,0 +1,54 @@
+Создайте студента (student):
+insert into students (name, second_name, group_id) values ('Ivan', 'Ivanov', NULL)   
+
+Создайте несколько книг (books) и укажите, что ваш созданный студент взял их
+insert into books (title, taken_by_student_id) values 
+('Маша и Медведь', 22886),
+('Лиса и Петух', 22886),
+('Три медведя', 22886)
+
+Создайте группу (group) и определите своего студента туда
+insert into `groups` (title , start_date , end_date ) values ('Python Engineer', 'feb 2026', 'aug 2026')
+
+UPDATE students 
+SET group_id = 22764 
+WHERE id = 22886
+
+Создайте несколько учебных предметов (subjects)
+insert into subjects (title) values 
+('Algebra'),
+('Geografic'),
+('Geometria')
+
+Создайте по два занятия для каждого предмета (lessons)
+insert into lessons (title, subject_id) values 
+('Algebra_1', 22905),
+('Algebra_2', 22905),
+('Geografic_1', 22906),
+('Geografic_2', 22906),
+('Geometria_1', 22907), 
+('Geometria_2', 22907)
+
+Поставьте своему студенту оценки (marks) для всех созданных вами занятий
+insert into marks (value, lesson_id, student_id) values 
+(5, 76182,22886),
+(3, 76183,22886),
+(4, 76184,22886),
+(2, 76185,22886),
+(5, 76186,22886),
+(4, 76187,22886)
+
+Все оценки студента
+SELECT value from marks where student_id=22886
+
+Все книги, которые находятся у студента
+SELECT title from books where taken_by_student_id=22886
+
+Для вашего студента выведите всё, что о нем есть в базе: группа, книги, оценки с названиями занятий и предметов (всё одним запросом с использованием Join)
+Select s.name As 'Имя', s.second_name As 'Фамилия', g.title As 'Группа', b.title As 'Книги', m.value As 'Оценки', l.title As 'Лекции', s2.title AS 'Предметы'  FROM students s
+LEFT JOIN `groups` g ON s.group_id = g.id
+LEFT JOIN books b ON b.taken_by_student_id  = s.id
+Left Join marks m on m.student_id = s.id
+left join lessons l  on l.id=m.lesson_id
+left join subjects s2  on s2.id=l.subject_id  
+WHERE s.id=22886
