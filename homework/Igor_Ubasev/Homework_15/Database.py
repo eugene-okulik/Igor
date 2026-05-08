@@ -42,7 +42,7 @@ def update_student_group(cursor, student_id, group_id):
     cursor.execute(query, values)
 
 
-# 4. Создание книги
+# 4. Создание книги (ODB style - with single insert)
 def create_book(cursor, title, taken_by_student_id=None):
     query = "INSERT INTO books (title, taken_by_student_id) VALUES (%s, %s)"
     values = (title, taken_by_student_id)
@@ -110,6 +110,49 @@ def get_full_student_info(cursor, student_id):
     return cursor.fetchall()
 
 
+def add_books_for_student(cursor, conn, books, student_id):
+    """
+    Массовое добавление книг для студента.
+    Возвращает количество добавленных книг.
+    """
+    if not books:
+        return 0
+
+    books_data = [(book_title, student_id) for book_title in books]
+
+    cursor.executemany(
+        "INSERT INTO books (title, student_id) VALUES (%s, %s)",
+        books_data
+    )
+    conn.commit()
+
+    print(f"   ✅ Добавлено {len(books)} книг для студента {student_id}")
+    return len(books)
+
+
+def add_marks_batch(cursor, conn, marks_values, lesson_ids, student_id):
+    """
+    Массовое добавление оценок.
+    """
+    if not marks_values or not lesson_ids:
+        return
+
+    # Подготавливаем данные
+    marks_data = [
+        (marks_values[i], lesson_id, student_id)
+        for i, lesson_id in enumerate(lesson_ids)
+    ]
+
+    # Один массовый запрос
+    cursor.executemany(
+        "INSERT INTO marks (value, lesson_id, student_id) VALUES (%s, %s, %s)",
+        marks_data
+    )
+    conn.commit()
+
+    print(f"   ✅ Добавлено {len(marks_data)} оценок для студента {student_id}")
+
+
 # ОСНОВНАЯ ПРОГРАММА
 def main():
     conn = create_connection()
@@ -132,17 +175,7 @@ def main():
         # ===== 2. СОЗДАНИЕ КНИГ И ВЫДАЧА СТУДЕНТУ =====
         print("\n2️⃣ Создаём книги и выдаём студенту...")
         books = ['Маша и Медведь', 'Лиса и Петух', 'Три медведя']
-        book_ids = []
-
-        for book_title in books:
-            book_id = create_book(cursor, book_title, student_id)
-            book_ids.append(book_id)
-            print(
-                f"   ✅ Книга '{book_title}' создана с ID: {book_id}, "
-                f"выдана студенту {student_id}"
-            )
-
-        conn.commit()
+        add_books_for_student(cursor, conn, books, student_id)
 
         # ===== 3. СОЗДАНИЕ ГРУППЫ =====
         print("\n3️⃣ Создаём группу...")
@@ -196,15 +229,7 @@ def main():
         # ===== 7. ВЫСТАВЛЕНИЕ ОЦЕНОК СТУДЕНТУ =====
         print("\n7️⃣ Выставляем оценки студенту...")
         marks_values = [5, 3, 4, 2, 5, 4]
-
-        for i, lesson_id in enumerate(lesson_ids):
-            mark_id = create_mark(cursor, marks_values[i], lesson_id, student_id)
-            print(
-                f"   ✅ Оценка {marks_values[i]} за занятие ID {lesson_id} "
-                f"создана с ID: {mark_id}"
-            )
-
-        conn.commit()
+        add_marks_batch(cursor, conn, marks_values, lesson_ids, student_id)
 
         # ===== 8. ВСЕ ОЦЕНКИ СТУДЕНТА =====
         print("\n8️⃣ Все оценки студента:")
