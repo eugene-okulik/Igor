@@ -154,8 +154,8 @@ def main():
 
             # Определяем точную строку, где находится слово
             target_word_global_index = (
-                    result['start']
-                    + (result['word_index_in_block'] - result['start'])
+                result['start']
+                + (result['word_index_in_block'] - result['start'])
             )
             cumulative_words = 0
             found_line = block['start_line']
@@ -167,7 +167,7 @@ def main():
                 cumulative_words += words_in_line
             else:
                 found_line = (
-                        block['start_line'] + len(block['lines']) - 1
+                    block['start_line'] + len(block['lines']) - 1
                 )  # последняя строка блока
 
             # Вывод результата
