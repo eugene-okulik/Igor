@@ -5,7 +5,6 @@ import re
 # Попробуем подключить colorama для цветного вывода
 try:
     from colorama import Fore, Style, init
-
     init(autoreset=True)
     COLOR_SUPPORT = True
 except ImportError:
@@ -39,11 +38,12 @@ def parse_blocks(filepath):
     with open(filepath, 'r', encoding='utf-8', errors='ignore') as f:
         for line_no, line in enumerate(f, start=1):
             if TIMESTAMP_PATTERN.match(line):
-                # Начинается новый блок
                 if current_block is not None:
                     blocks.append(current_block)
+                # Извлекаем только временную метку (первые 23 символа)
+                time_value = line.strip()[:23]
                 current_block = {
-                    'time': line.strip(),
+                    'time': time_value,
                     'start_line': line_no,
                     'lines': [line]
                 }
@@ -154,14 +154,15 @@ def main():
 
             # Определяем точную строку, где находится слово
             target_word_global_index = (
-                result['start']
-                + (result['word_index_in_block'] - result['start'])
+                result['start'] + (result['word_index_in_block']
+                                   - result['start'])
             )
             cumulative_words = 0
             found_line = block['start_line']
             for i, line in enumerate(block['lines']):
                 words_in_line = len(line.split())
-                if cumulative_words + words_in_line > target_word_global_index:
+                if (cumulative_words + words_in_line
+                        > target_word_global_index):
                     found_line = block['start_line'] + i
                     break
                 cumulative_words += words_in_line
