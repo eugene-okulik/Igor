@@ -30,7 +30,7 @@ def clear(object_id):
     """Вспомогательная функция - удаление объекта"""
     try:
         requests.delete(f"{BASE_URL}/object/{object_id}")
-    except:
+    except Exception:  # Исправлено: указываем конкретное исключение
         pass
 
 
