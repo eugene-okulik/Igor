@@ -23,9 +23,12 @@ def new_object():
 
 
 def clear(object_id):
-    """Вспомогательная функция - удаление объекта."""
+    """Удаляет объект, если он существует."""
     try:
-        requests.delete(f"{BASE_URL}/object/{object_id}")
+        # Сначала проверяем, существует ли объект
+        check = requests.get(f"{BASE_URL}/object/{object_id}")
+        if check.status_code == 200:
+            requests.delete(f"{BASE_URL}/object/{object_id}")
     except Exception:
         pass
 
@@ -52,22 +55,12 @@ def test_lifecycle():
 
 @pytest.fixture
 def temp_object():
-    """Создаёт временный объект, после теста удаляет."""
+    """Создаёт временный объект, после теста удаляет (если ещё существует)."""
     object_id = new_object()
     print(f"\n[DEBUG] Created temporary object: {object_id}")
     yield object_id
     clear(object_id)
     print(f"[DEBUG] Cleaned up temporary object: {object_id}")
-
-
-@pytest.fixture
-def object_for_delete():
-    """Создаёт объект для DELETE-теста (удаление происходит в тесте)."""
-    object_id = new_object()
-    print(f"\n[DEBUG] Created object for DELETE: {object_id}")
-    yield object_id
-    clear(object_id)  # если тест упал, объект мог не удалиться – почистим
-    print(f"[DEBUG] Cleaned up object for DELETE: {object_id}")
 
 
 @pytest.mark.critical
@@ -110,7 +103,7 @@ def test_create_object(test_data):
     assert response.json()["name"] == test_data["name"], "Name mismatch"
 
     object_id = response.json()["id"]
-    clear(object_id)
+    clear(object_id)  # удаляем созданный в тесте объект
 
 
 @pytest.mark.critical
@@ -179,9 +172,9 @@ def test_patch_object(temp_object):
 
 
 @pytest.mark.medium
-def test_delete_object(object_for_delete):
+def test_delete_object(temp_object):
     """Тест удаления объекта."""
-    object_id = object_for_delete
+    object_id = temp_object
 
     response = requests.delete(f"{BASE_URL}/object/{object_id}")
     assert response.status_code == 200, (
