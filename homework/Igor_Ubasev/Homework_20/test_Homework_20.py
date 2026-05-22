@@ -1,10 +1,5 @@
 import pytest
 import requests
-import warnings
-
-# Отключаем только конкретные предупреждения, остальные оставляем
-warnings.filterwarnings("ignore", category=DeprecationWarning)
-warnings.filterwarnings("ignore", category=ResourceWarning)
 
 BASE_URL = "http://objapi.course.qa-practice.com"
 
@@ -14,9 +9,7 @@ def new_object():
     body = {
         "name": "Test Object",
         "data": {
-            "title": (
-                "fsakjdhfkasjdhflkajsdhlkfjashdfoo"
-            ),
+            "title": "fsakjdhfkasjdhflkajsdhlkfjashdfoo",
             "body": (
                 "barasdfaskdjfhlaksdfoiwueysdhgkjashdkfjhalskdjfhasdf"
             ),
@@ -24,9 +17,7 @@ def new_object():
     }
     headers = {"Content-Type": "application/json"}
     response = requests.post(
-        f"{BASE_URL}/object",
-        json=body,
-        headers=headers,
+        f"{BASE_URL}/object", json=body, headers=headers
     )
     return response.json()["id"]
 
@@ -60,33 +51,13 @@ def test_lifecycle():
 
 
 @pytest.fixture
-def object_for_update():
-    """Создаёт объект для PUT-теста, после теста удаляет."""
+def temp_object():
+    """Создаёт временный объект, после теста удаляет."""
     object_id = new_object()
-    print(f"\n[DEBUG] Created object for PUT: {object_id}")
+    print(f"\n[DEBUG] Created temporary object: {object_id}")
     yield object_id
     clear(object_id)
-    print(f"[DEBUG] Cleaned up object for PUT: {object_id}")
-
-
-@pytest.fixture
-def object_for_get():
-    """Создаёт объект для GET-теста, после теста удаляет."""
-    object_id = new_object()
-    print(f"\n[DEBUG] Created object for GET: {object_id}")
-    yield object_id
-    clear(object_id)
-    print(f"[DEBUG] Cleaned up object for GET: {object_id}")
-
-
-@pytest.fixture
-def object_for_patch():
-    """Создаёт объект для PATCH-теста, после теста удаляет."""
-    object_id = new_object()
-    print(f"\n[DEBUG] Created object for PATCH: {object_id}")
-    yield object_id
-    clear(object_id)
-    print(f"[DEBUG] Cleaned up object for PATCH: {object_id}")
+    print(f"[DEBUG] Cleaned up temporary object: {object_id}")
 
 
 @pytest.fixture
@@ -95,8 +66,7 @@ def object_for_delete():
     object_id = new_object()
     print(f"\n[DEBUG] Created object for DELETE: {object_id}")
     yield object_id
-    # Если тест упал, объект мог не удалиться – почистим
-    clear(object_id)
+    clear(object_id)  # если тест упал, объект мог не удалиться – почистим
     print(f"[DEBUG] Cleaned up object for DELETE: {object_id}")
 
 
@@ -131,9 +101,7 @@ def test_create_object(test_data):
     """Тест создания объекта с разными данными."""
     headers = {"Content-Type": "application/json"}
     response = requests.post(
-        f"{BASE_URL}/object",
-        json=test_data,
-        headers=headers,
+        f"{BASE_URL}/object", json=test_data, headers=headers
     )
     assert response.status_code == 200, (
         f"Status code error: {response.status_code}"
@@ -141,22 +109,19 @@ def test_create_object(test_data):
     assert "id" in response.json(), "Id is missing in response"
     assert response.json()["name"] == test_data["name"], "Name mismatch"
 
-    # Очистка
     object_id = response.json()["id"]
     clear(object_id)
 
 
 @pytest.mark.critical
-def test_update_object(object_for_update):
+def test_update_object(temp_object):
     """Тест полного обновления объекта (PUT)."""
-    object_id = object_for_update
+    object_id = temp_object
 
     body = {
         "name": "Updated Object PUT",
         "data": {
-            "title": (
-                "fsakjdhfkasjdhflkajsdhlkfjashdfoo-UPD"
-            ),
+            "title": "fsakjdhfkasjdhflkajsdhlkfjashdfoo-UPD",
             "body": (
                 "barasdfaskdjfhlaksdfoiwueysdhgkjashdkfjhalskdjfhasdf-UPD"
             ),
@@ -164,9 +129,7 @@ def test_update_object(object_for_update):
     }
     headers = {"Content-Type": "application/json"}
     response = requests.put(
-        f"{BASE_URL}/object/{object_id}",
-        json=body,
-        headers=headers,
+        f"{BASE_URL}/object/{object_id}", json=body, headers=headers
     ).json()
 
     assert response["name"] == "Updated Object PUT", "Name was not updated"
@@ -178,9 +141,9 @@ def test_update_object(object_for_update):
 
 
 @pytest.mark.medium
-def test_get_object_by_id(object_for_get):
+def test_get_object_by_id(temp_object):
     """Тест получения объекта по ID."""
-    object_id = object_for_get
+    object_id = temp_object
 
     response = requests.get(f"{BASE_URL}/object/{object_id}")
 
@@ -194,9 +157,9 @@ def test_get_object_by_id(object_for_get):
 
 
 @pytest.mark.critical
-def test_patch_object(object_for_patch):
+def test_patch_object(temp_object):
     """Тест частичного обновления объекта (PATCH)."""
-    object_id = object_for_patch
+    object_id = temp_object
 
     body = {
         "data": {
@@ -206,9 +169,7 @@ def test_patch_object(object_for_patch):
     }
     headers = {"Content-Type": "application/json"}
     response = requests.patch(
-        f"{BASE_URL}/object/{object_id}",
-        json=body,
-        headers=headers,
+        f"{BASE_URL}/object/{object_id}", json=body, headers=headers
     ).json()
 
     assert response["data"]["title"] == "Patched Title Only", (
@@ -228,7 +189,6 @@ def test_delete_object(object_for_delete):
     )
     print(f"[DEBUG] Object {object_id} deleted")
 
-    # Проверка: объект действительно удалён
     get_response = requests.get(f"{BASE_URL}/object/{object_id}")
     assert get_response.status_code == 404, (
         "Object still exists after deletion"
