@@ -31,4 +31,3 @@ class TestGetObject:
 
         # Очистка
         DeleteObject().delete_object(object_id)
-    

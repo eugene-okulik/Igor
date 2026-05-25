@@ -33,4 +33,3 @@ class TestUpdateObject:
 
         # Очистка
         DeleteObject().delete_object(object_id)
-    
