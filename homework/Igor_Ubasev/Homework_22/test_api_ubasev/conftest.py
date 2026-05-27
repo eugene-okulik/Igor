@@ -1,6 +1,39 @@
 import pytest
 from endpoints.create_object import CreateObject
 from endpoints.delete_object import DeleteObject
+from endpoints.get_object import GetObject
+from endpoints.patch_object import PatchObject
+from endpoints.update_object import UpdateObject
+
+
+@pytest.fixture
+def create_endpoint():
+    """Фикстура возвращает экземпляр CreateObject."""
+    return CreateObject()
+
+
+@pytest.fixture
+def patch_endpoint():
+    """Фикстура возвращает экземпляр PatchObject."""
+    return PatchObject()
+
+
+@pytest.fixture
+def update_endpoint():
+    """Фикстура возвращает экземпляр UpdateObject."""
+    return UpdateObject()
+
+
+@pytest.fixture
+def delete_endpoint():
+    """Фикстура возвращает экземпляр DeleteObject."""
+    return DeleteObject()
+
+
+@pytest.fixture
+def get_endpoint():
+    """Фикстура возвращает экземпляр GetObject."""
+    return GetObject()
 
 
 @pytest.fixture
